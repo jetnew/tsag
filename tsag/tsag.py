@@ -43,20 +43,24 @@ class BaseAnomaly:
 
 
 class NoisyAnomaly(BaseAnomaly):
-    """
-    Create a synthetic anomaly augmented by noise.
+    """Create a synthetic anomaly augmented by noise.
+
     E.g.
-        noisy_anomaly = NoisyAnomaly(template, mu=0, sigma=5)
-        noisy_anomaly.plot()
-        augmented_timeseries = noisy_anomaly.insert(ts, index=None)
+    
+    noisy_anomaly = NoisyAnomaly(template, mu=0, sigma=5)
+    noisy_anomaly.plot()
+    augmented_timeseries = noisy_anomaly.insert(ts, index=None)
     """
+
     def __init__(self, template, mu=0, sigma=1):
         """
         Args:
-            template - template timeseries to augment
-            mu - mean, modelling normal distribution of noise
-            sigma - sigma, modelling normal distribution of noise
+
+        template - template timeseries to augment
+        mu - mean, modelling normal distribution of noise
+        sigma - sigma, modelling normal distribution of noise
         """
+
         super().__init__(template, mu=mu, sigma=sigma)
     def _generate(self):
         anomaly = self.template.copy()
@@ -65,19 +69,22 @@ class NoisyAnomaly(BaseAnomaly):
 
 
 class RangeShiftAnomaly(BaseAnomaly):
-    """
-    Create a synthetic anomaly augmented by a range shift (max-min).
+    """Create a synthetic anomaly augmented by a range shift (max-min).
+
     E.g.
-        rangeshift_anomaly = RangeShiftAnomaly(template, ratio=1/3)
-        rangeshift_anomaly.plot()
-        augmented_timeseries = rangeshift_anomaly.insert(timeseries, index=None)
+
+    rangeshift_anomaly = RangeShiftAnomaly(template, ratio=1/3)
+    rangeshift_anomaly.plot()
+    augmented_timeseries = rangeshift_anomaly.insert(timeseries, index=None)
     """
+
     def __init__(self, template, ratio):
         """
         Args:
-            template - template timeseries to augment
-            ratio - fraction of original range to scale to
+        template - template timeseries to augment
+        ratio - fraction of original range to scale to
         """
+
         super().__init__(template, ratio=ratio)
     def _generate(self):
         anomaly = self.template.copy()
@@ -85,16 +92,17 @@ class RangeShiftAnomaly(BaseAnomaly):
 
 
 class AmplitudeShiftAnomaly(BaseAnomaly):
+    """Create a synthetic anomaly augmented by an amplitude shift (raw value).
     """
-    Create a synthetic anomaly augmented by an amplitude shift (raw value).
 
-    """
     def __init__(self, template, ratio):
         """
         Args:
-            template - template timeseries to augment
-            ratio - fraction of original range to translate to
+
+        template - template timeseries to augment
+        ratio - fraction of original range to translate to
         """
+
         super().__init__(template, ratio=ratio)        
     def _generate(self):
         _max = self.template.max()
@@ -105,26 +113,31 @@ class AmplitudeShiftAnomaly(BaseAnomaly):
 
 
 class PointAnomaly(BaseAnomaly):
-    """
-    Create a synthetic anomaly augmented by points outside of the boundaries.
+    """Create a synthetic anomaly augmented by points outside of the boundaries.
     Note:
-        Anomalous points generate alternate between upper and lower boundaries.
-        i.e. Given template timeseries [11, 12, ..., 20], following points generated:
-            [22, 8, 23, 7, 22, 9, ...]
+
+    Anomalous points generate alternate between upper and lower boundaries.
+    i.e. Given template timeseries [11, 12, ..., 20], following points generated:
+        [22, 8, 23, 7, 22, 9, ...]
+
     E.g.
-        point_anomaly = PointAnomaly(template, ratio=1/2, mu=0, sigma=10, count=100)
-        point_anomaly.plot()
-        augmented_timeseries = point_anomaly.insert(timeseries, index=None)
+
+    point_anomaly = PointAnomaly(template, ratio=1/2, mu=0, sigma=10, count=100)
+    point_anomaly.plot()
+    augmented_timeseries = point_anomaly.insert(timeseries, index=None)
     """
+
     def __init__(self, template, ratio=1/3, mu=0, sigma=1, count=1):
         """
         Args:
-            template - template timeseries to augment
-            ratio - fraction of original range as threshold that points must exceed
-            mu - mean, modelling normal distribution of noise
-            sigma - sigma, modelling normal distribution of noise
-            count - no. of point anomalies to generate
+
+        template - template timeseries to augment
+        ratio - fraction of original range as threshold that points must exceed
+        mu - mean, modelling normal distribution of noise
+        sigma - sigma, modelling normal distribution of noise
+        count - no. of point anomalies to generate
         """
+        
         super().__init__(template, ratio=ratio, mu=mu, sigma=sigma, count=count)
     def _generate(self):
         _max = self.template.max()
@@ -149,16 +162,18 @@ class PointAnomaly(BaseAnomaly):
 
 
 class FrequencyShiftAnomaly(BaseAnomaly):
-    """
-    Create a synthetic anomaly augmented by frequency shift.
+    """Create a synthetic anomaly augmented by frequency shift.
+
     E.g.
     """
+
     def __init__(self, template, ratio):
         """
         Args:
-            template - template timeseries to augment
-            ratio - (0-1), fraction of original length of timeseries to generate
+        template - template timeseries to augment
+        ratio - (0-1), fraction of original length of timeseries to generate
         """
+        
         super().__init__(template, ratio=ratio)
     def _generate(self):
         if 0 < self.ratio <= 1:
@@ -171,19 +186,20 @@ class FrequencyShiftAnomaly(BaseAnomaly):
 
 
 class CompoundAnomaly(BaseAnomaly):
-    """
-    Create a compound anomaly of multiple anomaly shifts.
+    """Create a compound anomaly of multiple anomaly shifts.
+
     E.g.
-        args = [
-            # [Generator, {Arguments}],
-            [FrequencyShiftAnomaly, {'ratio': 1/3}],
-            [AmplitudeShiftAnomaly, {'ratio': 1/3}],
-            [RangeShiftAnomaly, {'ratio': 1/2}],
-        ]
-        compound_anomaly = CompoundAnomaly(template, *args)
-        compound_anomaly.plot()
-        compound_anomaly.insert(timeseries, index=None)
+    args = [
+        # [Generator, {Arguments}],
+        [FrequencyShiftAnomaly, {'ratio': 1/3}],
+        [AmplitudeShiftAnomaly, {'ratio': 1/3}],
+        [RangeShiftAnomaly, {'ratio': 1/2}],
+    ]
+    compound_anomaly = CompoundAnomaly(template, *args)
+    compound_anomaly.plot()
+    compound_anomaly.insert(timeseries, index=None)
     """
+
     def __init__(self, template, *args):
         super().__init__(template, *args)
     def _generate(self):
